@@ -28,5 +28,25 @@ namespace APIforUpcomingProjects.Services
 
             return role;
         }
+
+        public IEnumerable<Role> GetAllRoles()
+        {
+            return _context.Roles;
+        }
+
+        public Role GetRoleById(int id)
+        {
+            return _context.Roles.Find(id);
+        }
+
+        public void DeleteRole(int id)
+        {
+            var role = _context.Roles.Find(id);
+            if (role != null)
+            {
+                _context.Roles.Remove(role);
+                _context.SaveChanges();
+            }
+        }
     }
 }
