@@ -11,6 +11,6 @@ namespace APIforUpcomingProjects.Services.IServices
         public Role CreateRole(Role role);
         public IEnumerable<Role> GetAllRoles();
         public void DeleteRole(int id);
-        public Role GetRoleById(int id);
+        //public Role GetRoleById(int id);
     }
 }

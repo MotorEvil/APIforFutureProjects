@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using APIforUpcomingProjects.Data;
 using APIforUpcomingProjects.DTOS;
 using APIforUpcomingProjects.Helpers;
 using APIforUpcomingProjects.Models;
@@ -15,10 +16,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Services.UserAccountMapping;
 
 namespace APIforUpcomingProjects.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -26,15 +28,18 @@ namespace APIforUpcomingProjects.Controllers
         private IUserService _userService;
         private IMapper _mapper;
         private readonly AppSettings _appSettings;
+        private AppDbContext _context;
 
         public UserController(
             IUserService userService,
             IMapper mapper,
-            IOptions<AppSettings> appSettings)
+            IOptions<AppSettings> appSettings,
+             AppDbContext context)
         {
             _userService = userService;
             _mapper = mapper;
             _appSettings = appSettings.Value;
+            _context = context;
         }
 
         [AllowAnonymous]
@@ -97,12 +102,22 @@ namespace APIforUpcomingProjects.Controllers
             return Ok(model);
         }
 
+        // Would be nice to implement in to service
+        [Authorize(Roles = "TestAdmin")]
         [HttpGet("{id}")]
         public IActionResult GetUserById(int id)
         {
-            var user = _userService.GetUserById(id);
-            var model = _mapper.Map<UserReadDto>(user);
-            return Ok(model);
+            //var user = _userService.GetUserById(id);
+            var user = _context.Users.Where(x => x.Id == id).Select(x => new
+            {
+                x.Id,
+                x.Username,
+                x.FirstName,
+                x.LastName,
+                Role = x.UsersRoles.Select(x => _mapper.Map<RoleReadDto>(x.Role))
+            }).FirstOrDefault();
+           // var model = _mapper.Map<UserReadDto>(user);
+            return Ok(user);
         }
 
         [HttpPut("{id}")]
