@@ -47,7 +47,6 @@ namespace APIforUpcomingProjects
 
             // DI services
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IRoleService, RoleService>();
 
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");

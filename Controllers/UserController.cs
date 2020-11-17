@@ -76,7 +76,8 @@ namespace APIforUpcomingProjects.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -90,6 +91,7 @@ namespace APIforUpcomingProjects.Controllers
                 Username = user.Username,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Role = user.Role,
                 Token = tokenString
             });
         }
@@ -103,7 +105,7 @@ namespace APIforUpcomingProjects.Controllers
         }
 
         // Would be nice to implement in to service
-        [Authorize(Roles = "TestAdmin")]
+        [Authorize(Roles = Role.Admin)]
         [HttpGet("{id}")]
         public IActionResult GetUserById(int id)
         {
@@ -114,7 +116,7 @@ namespace APIforUpcomingProjects.Controllers
                 x.Username,
                 x.FirstName,
                 x.LastName,
-                Role = x.UsersRoles.Select(x => _mapper.Map<RoleReadDto>(x.Role))
+                x.Role
             }).FirstOrDefault();
            // var model = _mapper.Map<UserReadDto>(user);
             return Ok(user);

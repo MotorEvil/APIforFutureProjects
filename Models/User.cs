@@ -14,7 +14,6 @@ namespace APIforUpcomingProjects.Models
         public string Username { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-
-        public ICollection<UserRole> UsersRoles { get; set; }
+        public string Role { get; set; }
     }
 }

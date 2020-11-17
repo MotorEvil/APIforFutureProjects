@@ -17,7 +17,7 @@ namespace APIforUpcomingProjects.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
+/*            builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
 
             builder.Entity<UserRole>()
                 .HasOne<User>(x => x.User)
@@ -30,10 +30,8 @@ namespace APIforUpcomingProjects.Data
                 .HasForeignKey(x => x.RoleId);
 
             base.OnModelCreating(builder);
-        }
+*/        }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<UserRole> UsersRoles { get; set; }
     }
 }
