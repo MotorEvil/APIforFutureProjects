@@ -15,6 +15,7 @@ namespace APIforUpcomingProjects.Profiles
             CreateMap<User, UserReadDto>();
             CreateMap<UserRegisterDto, User>();
             CreateMap<UserUpdateDto, User>();
+            CreateMap<UpdateUserRoleDto, User>();
         }
     }
 }

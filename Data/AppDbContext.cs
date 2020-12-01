@@ -33,5 +33,6 @@ namespace APIforUpcomingProjects.Data
 */        }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<CarModel> Cars { get; set; }
     }
 }

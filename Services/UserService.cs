@@ -18,12 +18,12 @@ namespace APIforUpcomingProjects.Services
             _context = context;
         }
 
-        public User Login(string username, string password)
+        public User Login(string email, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 return null;
 
-            var user = _context.Users.SingleOrDefault(x => x.Username == username);
+            var user = _context.Users.SingleOrDefault(x => x.Email == email);
 
             // check if username exists
             if (user == null)
@@ -54,8 +54,8 @@ namespace APIforUpcomingProjects.Services
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
-            if (_context.Users.Any(x => x.Username == user.Username))
-                throw new AppException("Username \"" + user.Username + "\" is already taken");
+            if (_context.Users.Any(x => x.Email == user.Email))
+                throw new AppException("Username \"" + user.Email + "\" is already taken");
 
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
@@ -77,13 +77,13 @@ namespace APIforUpcomingProjects.Services
                 throw new AppException("User not found");
 
             // update username if it has changed
-            if (!string.IsNullOrWhiteSpace(userParam.Username) && userParam.Username != user.Username)
+            if (!string.IsNullOrWhiteSpace(userParam.Email) && userParam.Email != user.Email)
             {
                 // throw error if the new username is already taken
-                if (_context.Users.Any(x => x.Username == userParam.Username))
-                    throw new AppException("Username " + userParam.Username + " is already taken");
+                if (_context.Users.Any(x => x.Email == userParam.Email))
+                    throw new AppException("Email " + userParam.Email + " is already exists");
 
-                user.Username = userParam.Username;
+                user.Email = userParam.Email;
             }
 
             // update user properties if provided
@@ -92,7 +92,7 @@ namespace APIforUpcomingProjects.Services
 
             if (!string.IsNullOrWhiteSpace(userParam.LastName))
                 user.LastName = userParam.LastName;
-
+            
             // update password if provided
             if (!string.IsNullOrWhiteSpace(password))
             {
@@ -101,6 +101,24 @@ namespace APIforUpcomingProjects.Services
 
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
+            }
+
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
+        public void UpdateUserRole(User userParam)
+        {
+            var user = _context.Users.Find(userParam.Id);
+
+            if (user == null)
+            {
+                throw new AppException("User not found");
+            }
+
+            if (!string.IsNullOrWhiteSpace(userParam.Role))
+            {
+                user.Role = userParam.Role;
             }
 
             _context.Users.Update(user);

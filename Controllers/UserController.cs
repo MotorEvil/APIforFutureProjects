@@ -20,7 +20,7 @@ using Microsoft.VisualStudio.Services.UserAccountMapping;
 
 namespace APIforUpcomingProjects.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -65,7 +65,7 @@ namespace APIforUpcomingProjects.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto model)
         {
-            var user = _userService.Login(model.UserName, model.Password);
+            var user = _userService.Login(model.Email, model.Password);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -88,14 +88,16 @@ namespace APIforUpcomingProjects.Controllers
             return Ok(new
             {
                 Id = user.Id,
-                Username = user.Username,
+                Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Role = user.Role,
+                Team = user.Team,
                 Token = tokenString
             });
         }
 
+        [Authorize(Roles = Role.Admin)]
         [HttpGet]
         public IActionResult GetAllUsers()
         {
@@ -106,25 +108,37 @@ namespace APIforUpcomingProjects.Controllers
 
         // Would be nice to implement in to service
         [Authorize(Roles = Role.Admin)]
-        [HttpGet("{id}")]
+        [HttpGet("fulluser/{id}")]
         public IActionResult GetUserById(int id)
         {
-            //var user = _userService.GetUserById(id);
+           
+
             var user = _context.Users.Where(x => x.Id == id).Select(x => new
             {
                 x.Id,
-                x.Username,
+                x.Email,
                 x.FirstName,
                 x.LastName,
                 x.Role
             }).FirstOrDefault();
-           // var model = _mapper.Map<UserReadDto>(user);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             return Ok(user);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] UserUpdateDto model)
+        [HttpPut("updateUserInfo/{id}")]
+        public IActionResult UpdateUserInfo(int id, [FromBody] UserUpdateDto model)
         {
+            var currentUser = int.Parse(User.Identity.Name);
+            if (id != currentUser)
+            {
+                return Forbid();
+            }
+
             // map model to entity and set id
             var user = _mapper.Map<User>(model);
             user.Id = id;
@@ -142,6 +156,28 @@ namespace APIforUpcomingProjects.Controllers
             }
         }
 
+        [Authorize(Roles = Role.Admin)]
+        [HttpPut("updateUserRole/{id}")]
+        public IActionResult UpdateUserRole(int id, [FromBody] UpdateUserRoleDto model)
+        {
+            var user = _mapper.Map<User>(model);
+            user.Id = id;
+
+            try
+            {
+                // update user 
+                _userService.UpdateUserRole(user);
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+        [Authorize(Roles = Role.Admin)]
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {

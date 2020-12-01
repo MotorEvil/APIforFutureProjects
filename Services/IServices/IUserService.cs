@@ -8,11 +8,12 @@ namespace APIforUpcomingProjects.Services.IServices
 {
     public interface IUserService
     {
-        User Login(string username, string password);
+        User Login(string email, string password);
         IEnumerable<User> GetAllUsers();
         User GetUserById(int id);
         User Register(User user, string password);
         void UpdateUser(User userParam, string password = null);
         void DeleteUser(int id);
+        public void UpdateUserRole(User userParam);
     }
 }
